@@ -1,0 +1,111 @@
+/*
+    ColorWheelSubsystem
+
+    This implements a motor to spin the wheel and a color
+    a sensor to detect the current color.
+    And a linear actuator to raise and lower the
+    mechanism.
+
+*/
+package frc.robot.subsystems;
+
+import com.revrobotics.ColorMatch;
+import com.revrobotics.ColorMatchResult;
+import com.revrobotics.ColorSensorV3;
+
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.RobotMap;
+
+// import frc.robot.commands.HookReleaseCommand;
+
+
+
+public class ColorWheelSubsystem extends Subsystem {
+    //SEE: 
+    // NO!! http://www.revrobotics.com/rev-11-2158/
+    // NO!! http://www.revrobotics.com/content/sw/max/sw-docs/java/com/revrobotics/SparkMax.html
+    // NO!! http://www.revrobotics.com/sparkmax-software/#java-api
+    // NO!! download http://www.revrobotics.com/content/sw/max/sdk/SPARK-MAX-SDK-v1.5.1.zip put into the public folder
+    // YES: https://first.wpi.edu/FRC/roborio/release/docs/java/edu/wpi/first/wpilibj/PWMSparkMax.html
+    
+    private Spark spinMotor;
+    private Servo colorLifters;
+    private final int _MAX_ANGLE = 90;
+    private final int _MIN_ANGLE = 85;
+    private double _ANGLE = 85;
+    private final I2C.Port I2Cport = I2C.Port.kOnboard;
+    private final ColorSensorV3 colorSensor = new ColorSensorV3(I2Cport);
+
+    private final ColorMatch colorMatcher = new ColorMatch();
+    private final Color blueTarget = ColorMatch.makeColor(0.143, 0.427, 0.429);
+    private final Color greenTarget = ColorMatch.makeColor(0.197, 0.561, 0.240);
+    private final Color redTarget = ColorMatch.makeColor(0.561, 0.232, 0.114);
+    private final Color yellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
+
+    private double MaxWheelSpeed;
+
+
+    public ColorWheelSubsystem(){
+        //spinMotor = new PWMSparkMax(RobotMap.COLOR_WHEEL_MOTOR_CHANNEL.value);
+        spinMotor = new Spark(RobotMap.COLOR_WHEEL_MOTOR_CHANNEL.value);
+        colorLifters = new Servo (RobotMap.ACTUATORS_CHANNEL.value);
+
+        colorMatcher.addColorMatch(blueTarget);
+        colorMatcher.addColorMatch(greenTarget);
+        colorMatcher.addColorMatch(redTarget);
+        colorMatcher.addColorMatch(yellowTarget);
+
+        // Set once at init and link it to the SmartDash so we
+        // an change it for testing.
+        
+    }
+
+    public void setColorMotorSpeed(double x) {
+        spinMotor.set(x);
+    }
+
+    public void setAngle(boolean direction){
+        if (direction){_ANGLE = _ANGLE -1;}else{_ANGLE = _ANGLE + 1;}
+        if (_ANGLE > _MAX_ANGLE){ _ANGLE = _MAX_ANGLE;}
+        if (_ANGLE < _MIN_ANGLE){ _ANGLE = _MIN_ANGLE;}
+        colorLifters.setAngle(_ANGLE);
+        // System.out.println(_ANGLE);
+    }
+    public void execute(){
+        colorLifters.setAngle(_ANGLE);
+        Color detectedColor = colorSensor.getColor();
+        double ir = colorSensor.getIR();
+        int prox = colorSensor.getProximity();
+        ColorMatchResult match = colorMatcher.matchClosestColor(detectedColor);
+        String colorString;
+        if ( match.color == blueTarget) {
+            colorString = "Blue";
+        } else if ( match.color == redTarget ) {
+            colorString = "Red";
+        } else if ( match.color == greenTarget ) {
+            colorString = "Green";
+        } else if ( match.color == yellowTarget ) {
+            colorString = "Yellow";
+        } else {
+            colorString = "Unknown";
+        }
+        SmartDashboard.putNumber("RED", detectedColor.red);
+        SmartDashboard.putNumber("GREEN", detectedColor.green);
+        SmartDashboard.putNumber("BLUE", detectedColor.blue);
+        SmartDashboard.putNumber("IR", ir);
+        SmartDashboard.putNumber("PROX", prox);
+        SmartDashboard.putString("Color",colorString);
+    }   
+
+
+    @Override
+    protected void initDefaultCommand() {
+        // setDefaultCommand(new HookReleaseCommand());
+        
+    }
+}

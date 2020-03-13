@@ -1,0 +1,55 @@
+/*
+    ConveyorBeltSubsystem
+
+    This controls a motor driving conveyor belt to slide the balls.
+    Another motor raises and lowers the conveyor.
+    The convery is then limited by two limit switches
+
+    DEVICES:
+    - Belt motor
+    - Lift motor
+    - Upper Limit Switch
+    - Lower Limit Switch
+
+
+*/
+package frc.robot.subsystems;
+
+import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.Spark;
+
+// import frc.robot.commands.HookReleaseCommand;
+import frc.robot.RobotMap; 
+
+
+
+
+public class ConveyorBeltSubsystem extends Subsystem {
+    private Spark beltMotor1;//,beltMotor2;
+    
+    private boolean conveyorActive;
+
+    public ConveyorBeltSubsystem(){
+        beltMotor1 = new Spark(RobotMap.CONVEYOR_BELT_CHANNEL1.value); 
+        conveyorActive = false;
+    }
+
+    // public void toggleConveyorBeltActive()
+    // {
+    //     conveyorActive = !conveyorActive;
+    // }
+
+    public void setBeltSpeed(double x) {
+    //   //if (!conveyorActive) {
+    //       x = 0;
+    //     }
+        beltMotor1.set(x);
+    }
+
+
+    @Override
+    protected void initDefaultCommand() {
+        // setDefaultCommand(new HookReleaseCommand());
+        
+    }
+}

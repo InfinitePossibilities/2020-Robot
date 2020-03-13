@@ -1,0 +1,98 @@
+/*--------------------------------Imports-----------------------*/
+package frc.robot;
+
+// import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.CalloutCommand;
+import frc.robot.commands.FlyWheelCommand;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import frc.robot.commands.HookReleaseCommand;
+//import Math;
+import frc.robot.commands.ToggleConveyorCommand;
+import frc.robot.commands.RunConveyorBeltCommand;
+import frc.robot.commands.RunIntakeCommand;
+
+public class OI {
+    public static Joystick stick0 = new Joystick(0);
+    // public static Joystick stick1 = new Joystick(1);kj
+    public static final double JOYSTICK_Y_DEADBAND = 0.15;
+    public static final double JOYSTICK_TWIST_DEADBAND = 0.15;
+    public static final double JOYSTICK_Y_GAIN = 0.75;
+    public static final double JOYSTICK_TWIST_GAIN = 0.7;
+    public OI() {
+
+
+        /**
+         * Establishes Callout Buttons
+         */
+        final int buttonCount = 13;
+
+        for (int i = 1; i < buttonCount; i++) {
+            JoystickButton i_Button = new JoystickButton(stick0, i);
+            System.out.println(i);
+            i_Button.whenPressed(new CalloutCommand(i));
+        }
+
+
+        /**
+         * Button variables
+         */
+        JoystickButton trigger0 = new JoystickButton(stick0, 1);
+        JoystickButton thumb0 = new JoystickButton(stick0, 2);
+        JoystickButton button1x = new JoystickButton(stick0, 3);
+        JoystickButton button2x = new JoystickButton(stick0, 4);
+        JoystickButton button3x = new JoystickButton(stick0, 5);
+        JoystickButton button4x = new JoystickButton(stick0, 6);
+        JoystickButton button5x = new JoystickButton(stick0, 7);
+        JoystickButton button6x = new JoystickButton(stick0, 8);
+        JoystickButton button7x = new JoystickButton(stick0, 9);
+        JoystickButton button8x = new JoystickButton(stick0, 10);
+        JoystickButton button9x = new JoystickButton(stick0, 11);
+        JoystickButton button10x = new JoystickButton(stick0, 12);
+        
+
+        /**
+         * Button Commands
+         */
+        trigger0.whileHeld(new CalloutCommand(1));
+        thumb0.whenPressed(new CalloutCommand(2));
+        button1x.whenPressed(new CalloutCommand(3));
+        //button2x.whenPressed(new CalloutCommand(4));
+        button3x.whenPressed(new CalloutCommand(5));
+        //button4x.whenPressed(new CalloutCommand(6));
+        button2x.whileHeld(new RunIntakeCommand(-0.5));
+        button4x.whileHeld( new RunIntakeCommand(0.5));
+        button5x.whenPressed(new FlyWheelCommand());
+        // button6x.whenPressed(new ToggleConveyorCommand());
+        button6x.whileHeld(new RunConveyorBeltCommand(-0.5));
+        button7x.whenPressed(new CalloutCommand(9));
+        button8x.whenPressed(new CalloutCommand(10));
+        button9x.whileHeld(new HookReleaseCommand(-1));
+        button10x.whileHeld(new HookReleaseCommand(1));
+    }
+    //drive Wheel stuff
+    public double getDeadbandOutput(double input, double DB, double Gain) {
+        return (Math.abs(input) < DB ? 0.0 : ( input > 0 ? input - DB : input + DB )) * Gain;
+    }
+
+    public double getJoyY(){
+        return getDeadbandOutput(stick0.getY(), JOYSTICK_Y_DEADBAND, JOYSTICK_Y_GAIN);
+    }
+
+    public double getJoySpin(){
+        return getDeadbandOutput(stick0.getTwist(), JOYSTICK_TWIST_DEADBAND, JOYSTICK_TWIST_GAIN);
+    }
+
+    public double getLeftMotorValue() {  return ((-/*change - if the y is backwards*/getJoyY() + getJoySpin())/2.0); }
+
+    public double getRightMotorValue() { return ((-/*change - if the y is backwards*/getJoyY() - getJoySpin())/2.0); }
+
+    // Flywheel stuff
+    public double getThrottle(){
+        return(stick0.getThrottle());
+    }
+
+    public Joystick getJoystick(){
+        return stick0;
+    }
+}

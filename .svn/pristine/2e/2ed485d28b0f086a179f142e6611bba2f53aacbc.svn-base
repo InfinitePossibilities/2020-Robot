@@ -1,0 +1,126 @@
+/*--------------------------------Imports-----------------------*/
+package frc.robot;
+
+// import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.CalloutCommand;
+import frc.robot.commands.ColorLifterCommand;
+import frc.robot.commands.FlyWheelCommand;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import frc.robot.commands.HookReleaseCommand;
+import edu.wpi.first.wpilibj.buttons.POVButton;
+//import Math;
+import frc.robot.commands.ToggleConveyorCommand;
+import frc.robot.commands.ConveyorBeltCommand;
+import frc.robot.commands.IntakeCommand;
+
+import edu.wpi.first.wpilibj.AnalogInput;
+
+
+public class OI {
+    public static Joystick stick0 = new Joystick(0);
+    // public static Joystick stick1 = new Joystick(1);
+    public static final double JOYSTICK_Y_DEADBAND = 0.15;
+    public static final double JOYSTICK_TWIST_DEADBAND = 0.15;
+    public static final double JOYSTICK_Y_GAIN = 0.85;
+    public static final double JOYSTICK_TWIST_GAIN = 0.8;
+    AnalogInput conveyorSensor = new AnalogInput(0);
+    public OI() {
+
+
+        /**
+         * Establishes Callout Buttons
+         */
+        final int buttonCount = 13;
+
+        for (int i = 1; i < buttonCount; i++) {
+            JoystickButton i_Button = new JoystickButton(stick0, i);
+            System.out.println(i);
+            i_Button.whenPressed(new CalloutCommand(i));
+        }
+
+
+        /**
+         * Button variables
+         */
+        JoystickButton trigger0 = new JoystickButton(stick0, 1);
+        JoystickButton thumb0 = new JoystickButton(stick0, 2);
+        JoystickButton button3x = new JoystickButton(stick0, 3);
+        JoystickButton button4x = new JoystickButton(stick0, 4);
+        JoystickButton button5x = new JoystickButton(stick0, 5);
+        JoystickButton button6x = new JoystickButton(stick0, 6);
+        JoystickButton button7x = new JoystickButton(stick0, 7);
+        JoystickButton button8x = new JoystickButton(stick0, 8);
+        JoystickButton button9x = new JoystickButton(stick0, 9);
+        JoystickButton button10x = new JoystickButton(stick0, 10);
+        JoystickButton button11x = new JoystickButton(stick0, 11);
+        JoystickButton button12x = new JoystickButton(stick0, 12);
+        POVButton povUp = new POVButton(stick0, 0);
+        POVButton povDown = new POVButton(stick0, 180);
+
+
+
+        /**
+         * Button Commands
+         */
+        trigger0.whileHeld(new ConveyorBeltCommand(-0.4));
+        thumb0.whenPressed(new CalloutCommand(2));
+        button3x.whenPressed(new CalloutCommand(3));
+        //button2x.whenPressed(new CalloutCommand(4));
+        button4x.whenPressed(new CalloutCommand(5));
+        //button4x.whenPressed(new CalloutCommand(6));
+        //button5x.whileHeld(new IntakeCommand(-1.0));
+        //button6x.whileHeld( new IntakeCommand(1.0));
+        button7x.whenPressed(new FlyWheelCommand());
+        // button6x.whenPressed(new ToggleConveyorCommand());
+        // button8x.whileHeld(new ConveyorBeltCommand(-0.5));
+        button9x.whenPressed(new IntakeCommand());
+        button10x.whenPressed(new CalloutCommand(10));
+        button11x.whileHeld(new HookReleaseCommand(-1));
+        button12x.whileHeld(new HookReleaseCommand(1));
+        povUp.whenPressed(new ColorLifterCommand(true));
+        povDown.whenPressed(new ColorLifterCommand(false));
+    }
+    //drive Wheel stuff
+    public double getDeadbandOutput(double input, double DB, double Gain) {
+        return (Math.abs(input) < DB ? 0.0 : ( input > 0 ? input - DB : input + DB )) * Gain;
+    }
+
+    public double getJoyY(){
+        return getDeadbandOutput(stick0.getY(), JOYSTICK_Y_DEADBAND, JOYSTICK_Y_GAIN);
+    }
+
+    public double getJoySpin(){
+        return getDeadbandOutput(stick0.getTwist(), JOYSTICK_TWIST_DEADBAND, JOYSTICK_TWIST_GAIN);
+    }
+
+    public double getLeftMotorValue() {  return ((-/*change - if the y is backwards*/getJoyY() + getJoySpin())/2.0); }
+
+    public double getRightMotorValue() { return ((-/*change - if the y is backwards*/getJoyY() - getJoySpin())/2.0); }
+
+    // Flywheel stuff
+    public double getThrottle(){
+        return(stick0.getThrottle());
+    }
+
+    public Joystick getJoystick(){
+        return stick0;
+    }
+
+    public int getSensorRaw(){
+        return conveyorSensor.getValue();
+    }
+
+    public double getSensor_mm() {
+        return getSensorRaw() / 4.0 * 5.0;
+    }
+
+    public double getSensor_in() {
+        return getSensor_mm() / 25.4;
+    }
+
+    public double getSensor_ft() {
+        return getSensor_in() / 12.0;
+    }
+
+}

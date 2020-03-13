@@ -1,0 +1,23 @@
+/*
+  WARNING LIGHTS
+  This will be a relay controlling the orange light
+*/
+package frc.robot.subsystems;
+
+import edu.wpi.first.wpilibj.command.Subsystem;
+
+
+public class LightSubsystem extends Subsystem {
+
+    public LightSubsystem(){
+    }
+
+    public void setMotorSpeed(double x) {
+    }
+
+    @Override
+    protected void initDefaultCommand() {
+        // setDefaultCommand(new XXXXCommand());
+      
+    }
+}

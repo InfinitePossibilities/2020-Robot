@@ -1,0 +1,77 @@
+package frc.robot.commands;
+
+import edu.wpi.first.wpilibj.command.Command;
+import frc.robot.Robot;
+
+public class ColorPickerCommand extends Command {
+	private int color;
+	private boolean _FINISHED = false;
+	//private boolean hitTarget = false;
+
+	public ColorPickerCommand(int targetColor) {
+		color = targetColor;
+	}
+
+	/**
+     * Runs on first run
+     */
+	@Override
+	protected void initialize()
+	{
+		// Insert Initial Code Here :) <<
+		_FINISHED = false;
+		System.out.println("colorPicker Start: " + color);
+  	}
+
+	/**
+     * Runs every run
+     */
+	@Override
+	protected void execute() {
+
+		if (true)	{// Robot.colorWheel.getProx() == 2047){
+			int c_color = Robot.colorWheel.getCurrentColor();
+			//System.out.println( "colorPicker current color:" + c_color );
+			if (c_color == color){
+				System.out.println("colorPicker found color: " + color);
+
+				_FINISHED = true;
+
+			}else{
+				//System.out.println("colorPicker: Searching for " + color);
+				Robot.colorWheel.setColorMotorSpeed(.10);
+			}
+		}else{
+			//System.out.println("colorPicker END, arm not down");
+			_FINISHED = true;
+		}
+	}
+
+	/**
+	 * Calls until true
+	 */
+	@Override
+	protected boolean isFinished() {
+		return _FINISHED;
+	}
+
+	/**
+	 * Calls when isFinished() returns true
+	 */
+	@Override
+	protected void end()
+	{
+		Robot.colorWheel.hitColorMotorBrakes();
+		System.out.println("ColorPicker:End!");
+	}
+
+	/**
+	 * Calls when multiple commands using the same subsystems are run
+	 */
+	@Override
+	protected void interrupted()
+	{
+		end();
+	}
+
+}

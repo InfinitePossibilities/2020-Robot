@@ -1,0 +1,13 @@
+
+lost40.unfuddle.com
+
+Repo is here:
+https://lost40.unfuddle.com/svn/lost40_bng2020/trunk
+
+username is bglaptop
+password is bgrobots
+
+Use TortoiseSVN in file context menus
+
+Call or Text John Slagel 815-848-8086
+

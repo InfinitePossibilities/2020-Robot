@@ -1,0 +1,27 @@
+package frc.robot.subsystems;
+
+import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.Spark;
+import frc.robot.RobotMap;
+
+// import frc.robot.commands.HookReleaseCommand;
+// import frc.robot.RobotMap; -- commented out to reduce warnings
+
+
+public class BallPickupSubsystem extends Subsystem {
+    private Spark myMotor;
+
+    public BallPickupSubsystem(){
+        myMotor = new Spark(RobotMap.INTAKE_CHANNEL.value);
+    }
+
+    public void setMotorSpeed(double x) {
+        myMotor.set(x);
+    }
+
+    @Override
+    protected void initDefaultCommand() {
+        // setDefaultCommand(new HookReleaseCommand());
+        
+    }
+}

@@ -1,0 +1,60 @@
+/*
+    ColorWheelSubsystem
+
+    This implements a motor to spin the wheel and a color
+    a sensor to detect the current color.
+    And a linear actuator to raise and lower the
+    mechanism.
+
+*/
+package frc.robot.subsystems;
+
+import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.util.Color;
+import rev.color.ColorSensorV3;
+
+import frc.robot.RobotMap;
+
+// import frc.robot.commands.HookReleaseCommand;
+
+
+
+public class ColorWheelSubsystem extends Subsystem {
+    private Spark spinMotor;
+    private Servo colorLifters;
+    private final int _MAX_ANGLE = 1000;
+    private final int _MIN_ANGLE = -1000;
+    private double _ANGLE = 45;
+    private final I2C.Port I2Cport = I2C.Port.kOnboard;
+    private final ColorSensorV3 colorSensor = new ColorSensorV3(I2Cport);
+
+    public ColorWheelSubsystem(){
+        spinMotor = new Spark(RobotMap.COLOR_WHEEL_MOTOR_CHANNEL.value);
+        colorLifters = new Servo (RobotMap.ACTUATORS_CHANNEL.value);
+    }
+
+    public void setColorMotorSpeed(double x) {
+        spinMotor.set(x);
+    }
+
+    public void setAngle(boolean direction){
+        if (direction){_ANGLE = _ANGLE -1;}else{_ANGLE = _ANGLE + 1;}
+        if (_ANGLE > _MAX_ANGLE){ _ANGLE = _MAX_ANGLE;}
+        if (_ANGLE < _MIN_ANGLE){ _ANGLE = _MIN_ANGLE;}
+        colorLifters.setAngle(_ANGLE);
+        System.out.println(_ANGLE);
+    }
+    public void updateAngle(){
+        colorLifters.setAngle(_ANGLE);
+    }   
+
+
+    @Override
+    protected void initDefaultCommand() {
+        // setDefaultCommand(new HookReleaseCommand());
+        
+    }
+}

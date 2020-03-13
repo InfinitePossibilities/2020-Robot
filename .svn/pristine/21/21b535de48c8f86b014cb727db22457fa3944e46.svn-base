@@ -1,0 +1,36 @@
+/*
+    ColorWheelSubsystem
+
+    This implements a motor to spin the wheel and a color
+    a sensor to detect the current color.
+    And a linear actuator to raise and lower the
+    mechanism.
+
+*/
+package frc.robot.subsystems;
+
+import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.Spark;
+import frc.robot.RobotMap;
+
+// import frc.robot.commands.HookReleaseCommand;
+// import frc.robot.RobotMap; -- commented out to reduce warnings
+
+
+public class ColorWheelSubsystem extends Subsystem {
+    private Spark spinMotor;
+
+    public ColorWheelSubsystem(){
+        spinMotor = new Spark(RobotMap.COLORWHEELSPIN_CHANNEL.value);
+    }
+
+    public void setMotorSpeed(double x) {
+        spinMotor.set(x);
+    }
+
+    @Override
+    protected void initDefaultCommand() {
+        // setDefaultCommand(new HookReleaseCommand());
+        
+    }
+}

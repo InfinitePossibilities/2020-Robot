@@ -1,0 +1,192 @@
+/*
+    ColorWheelSubsystem
+
+    This implements a motor to spin the wheel and a color
+    a sensor to detect the current color.
+    And a linear actuator to raise and lower the
+    mechanism.
+
+*/
+package frc.robot.subsystems;
+
+import com.revrobotics.ColorMatch;
+import com.revrobotics.ColorMatchResult;
+import com.revrobotics.ColorSensorV3;
+
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.RobotMap;
+import edu.wpi.first.wpilibj.Timer;
+
+// import frc.robot.commands.HookReleaseCommand;
+
+
+
+public class ColorWheelSubsystem extends Subsystem {
+    //SEE: 
+    // NO!! http://www.revrobotics.com/rev-11-2158/
+    // NO!! http://www.revrobotics.com/content/sw/max/sw-docs/java/com/revrobotics/SparkMax.html
+    // NO!! http://www.revrobotics.com/sparkmax-software/#java-api
+    // NO!! download http://www.revrobotics.com/content/sw/max/sdk/SPARK-MAX-SDK-v1.5.1.zip put into the public folder
+    // YES: https://first.wpi.edu/FRC/roborio/release/docs/java/edu/wpi/first/wpilibj/PWMSparkMax.html
+    
+    private Spark spinMotor;
+    private Servo colorLifters;
+    private final int _MAX_ANGLE = 180;
+    private final int _MIN_ANGLE = 81;
+    private double _ANGLE = 85;
+    private final I2C.Port I2Cport = I2C.Port.kOnboard;
+    private final ColorSensorV3 colorSensor = new ColorSensorV3(I2Cport);
+
+    private final ColorMatch colorMatcher = new ColorMatch();
+    private final Color blueTarget = ColorMatch.makeColor(0.114258, 0.4280155, 0.45678);
+    private final Color greenTarget = ColorMatch.makeColor(0.15497, 0.591064, 0.2503);
+    private final Color redTarget = ColorMatch.makeColor(0.526123, 0.345215, 0.12806);
+    private final Color yellowTarget = ColorMatch.makeColor(0.310741, 0.571045, 0.118408);
+    private final Color woodTarget = ColorMatch.makeColor(0.3219824,0.505615,0.174805);
+
+    private double DesiredWheelSpeed;
+    private double WheelBrakeCounter;
+    private Timer ColorDelayTimer = new Timer();
+    private int prox;
+
+
+    //Clockwise, wheel goes through 8 octants, R-G-B-Y-R-G-B-Y
+    //                                         0 1 2 3 0 1 2 3
+    //
+    private int currentResolvedColor;
+
+    private void resetWheelTracker()
+    {
+        ColorDelayTimer.reset();
+        currentResolvedColor = -1;
+    }
+    public int getCurrentColor(){return currentResolvedColor;}
+
+    // color is 0=red, 1=green, 2=blue, 3=yellow, -1=unknown
+    private void updateWheelTrackerColor( int color )
+    {
+        currentResolvedColor = color;
+    /*    if ( color != currentResolvedColor) {
+            ColorDelayTimer.reset();
+            ColorDelayTimer.start();
+            currentResolvedColor = color; 
+		    //System.out.println("*");
+        } else {
+            if ( !ColorDelayTimer.hasPeriodPassed(0.05))  {
+               // System.out.println("!");
+                return;
+            }
+            //System.out.println("OK");
+
+        }
+*/
+        // Update smart dash
+        SmartDashboard.putNumber("ResolvedWheelColor",currentResolvedColor);
+    }
+
+
+    public ColorWheelSubsystem(){
+        //spinMotor = new PWMSparkMax(RobotMap.COLOR_WHEEL_MOTOR_CHANNEL.value);
+        spinMotor = new Spark(RobotMap.COLOR_WHEEL_MOTOR_CHANNEL.value);
+        colorLifters = new Servo (RobotMap.ACTUATORS_CHANNEL.value);
+        DesiredWheelSpeed = 0;
+        WheelBrakeCounter = 0;
+        prox = 0;
+        resetWheelTracker();
+    
+        colorMatcher.addColorMatch(blueTarget);
+        colorMatcher.addColorMatch(greenTarget);
+        colorMatcher.addColorMatch(redTarget);
+        colorMatcher.addColorMatch(yellowTarget);
+        // No need with taped wheel: colorMatcher.addColorMatch(woodTarget);
+
+        // Set once at init and link it to the SmartDash so we
+        // an change it for testing.
+        
+    }
+
+    public void setColorMotorSpeed(double x) {
+        WheelBrakeCounter = 0;
+        DesiredWheelSpeed = x;
+        //spinMotor.set(x);
+    }
+
+    // Bring the color wheel to a stop as quick as possible.
+    public void hitColorMotorBrakes()
+    {
+        WheelBrakeCounter = -1*DesiredWheelSpeed;         // apply reverse brakes
+        DesiredWheelSpeed = 0;
+    }
+
+    public void setAngle(boolean direction){
+        if (direction){_ANGLE = _ANGLE -1;}else{_ANGLE = _ANGLE + 1;}
+        if (_ANGLE > _MAX_ANGLE){ _ANGLE = _MAX_ANGLE;}
+        if (_ANGLE < _MIN_ANGLE){ _ANGLE = _MIN_ANGLE;}
+        colorLifters.setAngle(_ANGLE);
+        // System.out.println(_ANGLE);
+        SmartDashboard.putNumber("Lift Angle", _ANGLE);
+    }
+    public int getProx(){return prox;}
+
+    public void execute(){
+        colorLifters.setAngle(_ANGLE);
+        Color detectedColor = colorSensor.getColor();
+        double ir = colorSensor.getIR();
+        prox = colorSensor.getProximity();
+        ColorMatchResult match = colorMatcher.matchClosestColor(detectedColor);
+        String colorString;
+        int wheelColorIndex = -1;
+
+        
+
+        if ( match.color == blueTarget) {
+            colorString = "Blue";
+            wheelColorIndex = 2;
+        } else if ( match.color == redTarget ) {
+            colorString = "Red";
+            wheelColorIndex = 0;
+        } else if ( match.color == greenTarget ) {
+            colorString = "Green";
+            wheelColorIndex = 1;
+        } else if ( match.color == yellowTarget ) {
+            colorString = "Yellow";
+            wheelColorIndex = 3;
+        } else if ( match.color == woodTarget ) {
+            colorString = "Wood";
+        } else {
+            colorString = "Unknown";
+        }
+		//System.out.println("color: " + colorString);
+        updateWheelTrackerColor(wheelColorIndex);
+
+        SmartDashboard.putNumber("RED", detectedColor.red);
+        SmartDashboard.putNumber("GREEN", detectedColor.green);
+        SmartDashboard.putNumber("BLUE", detectedColor.blue);
+        SmartDashboard.putNumber("IR", ir);
+        SmartDashboard.putNumber("PROX", prox);
+        SmartDashboard.putString("Color",colorString);
+        SmartDashboard.putNumber("Color#",wheelColorIndex);
+        if ( Math.abs(WheelBrakeCounter) > 0.01 )    {
+            spinMotor.set(WheelBrakeCounter);
+            WheelBrakeCounter = WheelBrakeCounter * 0.95;
+            System.out.println( "Braking! "+WheelBrakeCounter);
+        } else if ( Math.abs(DesiredWheelSpeed) > 0.01 ) {
+            spinMotor.set(DesiredWheelSpeed);
+        } else {
+            spinMotor.set(0);
+        }
+
+    }   
+
+
+    @Override
+    protected void initDefaultCommand() {
+        // setDefaultCommand(new HookReleaseCommand());
+        
+    }
+}

@@ -1,0 +1,38 @@
+package frc.robot.commands;
+
+import edu.wpi.first.wpilibj.command.Command;
+import frc.robot.Robot;
+import frc.robot.subsystems.FlyWheelSubsystem;
+
+public class FlyWheelCommand extends Command {
+    public boolean flywheelToggle;
+    private boolean _FINISHED = false;
+    
+    public FlyWheelCommand() {
+        if(flywheelToggle == false){
+            flywheelToggle = true;
+        }else{
+            flywheelToggle = false;
+        }
+	}
+    public boolean getFlywheelToggle(){
+        return flywheelToggle;
+    }
+    // Runs on first run
+	@Override
+	protected void initialize(){
+        // flywheelToggle = false;
+    }
+    
+    // Runs every run
+	@Override
+	protected void execute() {
+        _FINISHED = true;
+        Robot.flywheel.setFlywheelActive(flywheelToggle);
+    }
+    
+    @Override
+    protected boolean isFinished() {
+        return _FINISHED;
+    }
+}

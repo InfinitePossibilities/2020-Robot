@@ -1,0 +1,21 @@
+package frc.robot;
+
+public enum RobotMap {
+    LEFT_MOTOR_CHANNEL(0),
+    RIGHT_MOTOR_CHANNEL(1),
+    FLYWHEEL_CHANNEL(6), // 6
+    // CONVEYER_CHANNEL(),
+    LIFT_CHANNEL(2),
+    INTAKE_CHANNEL(3),
+    COLORWHEELSPIN_CHANNEL(7),  // JAS:TODO!!!
+    CONVEYOR_BELT_CHANNEL1(4),
+    CONVEYOR_BELT_CHANNEL2(5),
+    CONVEYOR_LIFT_CHANNEL(9),   // JAS:TODO!!!
+    HOOK_RELEASE_CHANNEL(10); // 9
+
+    public final int value;
+    RobotMap(int value){
+        this.value = value;
+    }
+
+}

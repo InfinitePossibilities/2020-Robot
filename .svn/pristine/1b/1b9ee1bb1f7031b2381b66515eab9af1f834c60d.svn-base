@@ -1,0 +1,46 @@
+package frc.robot.subsystems;
+
+import javax.swing.text.StyledEditorKit.BoldAction;
+
+import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.command.Subsystem;
+
+import frc.robot.commands.FlyWheelCommand;
+// import frc.robot.RobotMap;
+// import frc.robot.OI; unused imports, commented out to reduce warnings
+
+public class FlyWheelSubsystem extends Subsystem{
+
+    private Spark flyMotor;
+    public boolean flywheelActive;
+    // FlyWheelCommand flyCommand = new FlyWheelCommand();
+
+    public FlyWheelSubsystem(){
+        flyMotor = new Spark(frc.robot.RobotMap.FLYWHEEL_CHANNEL.value);
+        flywheelActive = false;
+    }
+
+    public void setRaw(double value) {
+        //if (flywheelActive == true){
+            flyMotor.set(-value);
+        //}else{
+        //    flyMotor.set(0);
+        //}
+    }
+    public void setFlywheelActive(boolean value){
+        flywheelActive = value;
+    }
+
+    @Override
+    protected void initDefaultCommand() {
+        setDefaultCommand(new FlyWheelCommand());  
+    }
+    // public void setRaw(double value) {
+    //     if (getFlywheelToggle() == true){
+    //         flyMotor.set(-value);
+    //     }else{
+    //         flyMotor.set(0);
+    //     }
+    // }
+
+}
